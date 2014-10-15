@@ -2,11 +2,19 @@
     "extensionName": "Wiimote",
     "extensionPort": 3000,
     "blockSpecs": [
-        ["b", "bouton a pressé ?", "button_a"],
-        ["b", "bouton b pressé ?", "button_b"],
-        ["b", "gauche pressée ?",  "dleft"],
-        ["b", "haut pressé ?",     "dup"],
-        ["b", "droite pressée ?",  "dright"],
-        ["b", "bas pressé ?",      "ddown"]
-    ]
+        ["b", "bouton a de la manette %d.wiimote pressé ?", "a", 1],
+        ["b", "bouton b de la manette %d.wiimote pressé ?", "trigger", 1],
+        ["b", "bouton - de la manette %d.wiimote pressé ?", "minus", 1],
+        ["b", "bouton + de la manette %d.wiimote pressé ?", "plus", 1],
+        ["b", "bouton maison de la manette %d.wiimote pressé ?", "home", 1],
+        ["b", "bouton 1 de la manette %d.wiimote pressé ?", "1", 1],
+        ["b", "bouton 2 de la manette %d.wiimote pressé ?", "2", 1],
+        ["b", "flèche gauche de la manette %d.wiimote pressée ?", "dleft", 1],
+        ["b", "flèche droite de la manette %d.wiimote pressée ?", "dright", 1],
+        ["b", "flèche haut de la manette %d.wiimote pressée ?", "dup", 1],
+        ["b", "flèche bas de la manette %d.wiimote pressée ?", "ddown", 1],
+    ],
+    "menus": {
+      "wiimote": [1, 2, 3, 4]
+    },
 }

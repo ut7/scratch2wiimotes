@@ -36,20 +36,25 @@ var packets = pakkit.export({
 });
 
 exports.open = function (cb) {
-  HID.devices().forEach((function(d) {
+  var wiimoteNumber = 1;
+  HID.devices().slice().sort(function(d1, d2) {
+    return (d1.path > d2.path) ? 1 : ((d1.path < d2.path) ? -1 : 0);
+  }).forEach((function(d) {
     if(d && d.product.toLowerCase().indexOf('wiimote') !== -1) {
       console.log('Found a wiimote', d);
+      var thisWiimote = wiimoteNumber;
       var hid = new HID.HID(d.path);
 
       var read = function(error, data) {
         var packet = packets.WIIMOTE_CONTROLLER.read(data);
 
-        cb(packets.WIIMOTE_CONTROLLER.read(data));
+        cb(thisWiimote, packets.WIIMOTE_CONTROLLER.read(data));
 
         hid.read(read);
       };
 
       hid.read(read);
+      wiimoteNumber += 1;
     }
   }))
 };

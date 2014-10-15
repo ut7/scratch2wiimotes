@@ -2,11 +2,11 @@ var express = require('express');
 var wiimote = require('./hid-wiimote');
 var app = express();
 
-var lastWiimote = {buttons:{}};
+var wiimoteStatus = [];
 
-wiimote.open(function (wiimoteData) {
-  console.log(wiimoteData);
-  lastWiimote = wiimoteData;
+wiimote.open(function (wiimoteNumber, wiimoteData) {
+  wiimoteStatus[wiimoteNumber] = wiimoteData;
+  console.log(wiimoteStatus);
 });
 
 app.use(function logErrors(err, req, res, next) {
@@ -15,15 +15,18 @@ app.use(function logErrors(err, req, res, next) {
 });
 
 app.get('/poll', function(req, res) {
-  res.send([
-           'button_a ' + !!lastWiimote.buttons.a,
-           'button_b ' + !!lastWiimote.buttons.trigger,
-           'dleft '    + !!lastWiimote.buttons.dleft,
-           'dup '      + !!lastWiimote.buttons.dup,
-           'dright '   + !!lastWiimote.buttons.dright,
-           'ddown '    + !!lastWiimote.buttons.ddown,
-           ''
-  ].join('\n'));
+  var statuses = [];
+  for(var i=1; i<=4; i++) {
+    var status = wiimoteStatus[i];
+    var buttons = (status && status.buttons) || {};
+    ['a','trigger',
+     'dleft','dright','dup','ddown',
+     'plus','minus','1','2','home'].forEach(function (btn) {
+      statuses.push(btn + '/' + i + ' ' + !!buttons[btn]);
+    });
+  }
+  statuses.push('');
+  res.send(statuses.join('\n'));
 });
 
 app.get('/reset_all', function(req, res) {
