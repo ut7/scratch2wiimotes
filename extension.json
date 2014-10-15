@@ -1,0 +1,12 @@
+{
+    "extensionName": "Wiimote",
+    "extensionPort": 3000,
+    "blockSpecs": [
+        ["b", "bouton a pressé ?", "button_a"],
+        ["b", "bouton b pressé ?", "button_b"],
+        ["b", "gauche pressée ?",  "dleft"],
+        ["b", "haut pressé ?",     "dup"],
+        ["b", "droite pressée ?",  "dright"],
+        ["b", "bas pressé ?",      "ddown"]
+    ]
+}
