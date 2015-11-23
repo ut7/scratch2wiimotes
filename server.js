@@ -34,6 +34,11 @@ app.get('/reset_all', function(req, res) {
   res.send('\n');
 });
 
+app.get('/crossdomain.xml', function (req, res) {
+  res.setHeader('Content-Type', 'application/xml');
+  res.send('<cross-domain-policy><site-control permitted-cross-domain-policies="all"/> <allow-access-from domain="*" to-ports="*"/></cross-domain-policy>');
+});
+
 app.get('*', function (req, res) {
   console.log(req.method + ' ' + req.url);
   res.send('unknown\n');
