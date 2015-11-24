@@ -1,8 +1,8 @@
 var express = require('express');
-var wiimote = require('./hid-wiimote');
+var wiimote = require('./raw-wiimote');
 var app = express();
 
-var wiimoteStatus = [];
+var wiimoteStatus = {};
 
 wiimote.open(function (wiimoteNumber, wiimoteData) {
   wiimoteStatus[wiimoteNumber] = wiimoteData;
