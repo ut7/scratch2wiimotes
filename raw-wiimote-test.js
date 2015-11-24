@@ -11,10 +11,12 @@ var MaxWiimotes = 4;
 process.stdout.write(new Array(1 + MaxWiimotes).join('\n'));
 
 wiimote.open(function (index, data) {
-  process.stdout.write(VT100.CursorUp(MaxWiimotes - index)
+  process.stdout.write(VT100.CursorUp(MaxWiimotes - index + 1)
                        + VT100.ClearLine
                        + "\r" + index + ':'
-                       + data.toString('hex').replace(/../g, ' $&')
+                       + Object.keys(data.buttons).filter(
+                           function(k){return data.buttons[k]}
+                         ).join(',')
                        + "\r"
-                       + VT100.CursorDown(MaxWiimotes - index));
+                       + VT100.CursorDown(MaxWiimotes - index + 1));
 });

@@ -1,4 +1,5 @@
-var HID = require('node-hid');
+var HID = require('node-hid'),
+    pakkit = require('pakkit');
 
 var Command = {
   SetLEDState: 0x11,
@@ -19,6 +20,20 @@ function isWiimote(deviceDesc) {
   return deviceDesc.product.match(/Nintendo/);
 }
 
+var packets = pakkit.export({
+  BUTTONS : {
+    buttons: {
+      mask: [
+        'dleft', 'dright', 'ddown', 'dup',
+        'plus', '_', '_', '_',
+        '2', '1', 'b', 'a',
+        'minus', '_', '_', 'home'
+      ],
+      type: 'uint16le'
+    }
+  }
+}, {});
+
 exports.open = function (callback) {
   var deviceDescs = HID.devices().filter(isWiimote);
 
@@ -29,9 +44,11 @@ exports.open = function (callback) {
     var rumble = 0;
 
     device.on('data', function(data) {
-      callback(index, data);
+      data = data.slice(1);
+      parsed = packets.BUTTONS.read(data);
+      callback(index + 1, parsed);
 
-      if (data[2] & 0x80) {
+      if (parsed.buttons.home) {
         rumble = 1;
       } else {
         rumble = 0;
