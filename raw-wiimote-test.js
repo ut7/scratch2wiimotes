@@ -6,17 +6,21 @@ var VT100 = {
   ClearLine: "\x1b[2K"
 };
 
-var MaxWiimotes = 4;
+var wiimoteCount = 0;
 
-process.stdout.write(new Array(1 + MaxWiimotes).join('\n'));
+process.stdout.write(new Array(1 + wiimoteCount).join('\n'));
 
 wiimote.open(function (index, data) {
-  process.stdout.write(VT100.CursorUp(MaxWiimotes - index + 1)
+  while (index > wiimoteCount) {
+    process.stdout.write('\n');
+    wiimoteCount++;
+  }
+  process.stdout.write(VT100.CursorUp(wiimoteCount - index + 1)
                        + VT100.ClearLine
                        + "\r" + index + ':'
                        + Object.keys(data.buttons).filter(
-                           function(k){return data.buttons[k]}
+                           function(k){return data.buttons[k];}
                          ).join(',')
                        + "\r"
-                       + VT100.CursorDown(MaxWiimotes - index + 1));
+                       + VT100.CursorDown(wiimoteCount - index + 1));
 });

@@ -35,7 +35,9 @@ var packets = pakkit.export({
 }, {});
 
 exports.open = function (callback) {
-  var deviceDescs = HID.devices().filter(isWiimote);
+  var deviceDescs = HID.devices().filter(isWiimote).sort(function (a, b) {
+    return a.path.localeCompare(b.path);
+  });
 
   deviceDescs.forEach(function(deviceDesc, index) {
     var device = new HID.HID(deviceDesc.path);
