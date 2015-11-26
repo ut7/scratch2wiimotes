@@ -1,5 +1,6 @@
 var HID = require('node-hid'),
-    pakkit = require('pakkit');
+    pakkit = require('pakkit'),
+    events = require('events');
 
 var Command = {
   SetLEDState: 0x11,
@@ -34,30 +35,74 @@ var packets = pakkit.export({
   }
 }, {});
 
-exports.open = function (callback) {
-  var deviceDescs = HID.devices().filter(isWiimote).sort(function (a, b) {
-    return a.path.localeCompare(b.path);
-  });
+var Wiimote = new events.EventEmitter();
 
-  deviceDescs.forEach(function(deviceDesc, index) {
-    var device = new HID.HID(deviceDesc.path);
+Wiimote.open = function (callback) {
+  var wiimote = this,
+      currentPaths = null,
+      currentDevices = [];
 
-    var ledState = 0x10 << index;
-    var rumble = 0;
+  wiimote.on('data', callback);
 
-    device.on('data', function(data) {
-      data = data.slice(1);
-      parsed = packets.BUTTONS.read(data);
-      callback(index + 1, parsed);
+  function enumerate() {
+    return HID.devices().filter(isWiimote).map(function (d) {
+      return d.path;
+    }).sort();
+  }
 
-      if (parsed.buttons.home) {
-        rumble = 1;
-      } else {
-        rumble = 0;
-      }
-      device.write(new Buffer([Command.SetLEDState, ledState | rumble]));
+  function checkDevices() {
+    var devicePaths = enumerate();
+    if (devicePaths.join(',') !== currentPaths) {
+      openAll(devicePaths);
+    }
+  }
+
+  function closeAll() {
+    currentDevices.forEach(function (d) {
+      d.close();
     });
+  }
 
-    device.write(new Buffer([Command.SetReportingMode, ReportFlags.OnChange, ReportMode.Buttons]));
-  });
+  function openAll(devicePaths) {
+    closeAll();
+    currentPaths = devicePaths.join(',');
+
+    wiimote.emit('enumerate', devicePaths.length);
+
+    currentDevices = devicePaths.map(function(devicePath, index) {
+      var device = new HID.HID(devicePath),
+          ledState = 0x10 << (index % 4),
+          rumble = 0;
+
+      device.on('data', function(data) {
+        data = data.slice(1);
+        parsed = packets.BUTTONS.read(data);
+
+        wiimote.emit('data', index + 1, parsed);
+
+        if (parsed.buttons.home) {
+          rumble = 1;
+        } else {
+          rumble = 0;
+        }
+        device.write(new Buffer([Command.SetLEDState, ledState | rumble]));
+      });
+
+      device.on('error', function() {
+        openAll(enumerate());
+      });
+
+      device.write(new Buffer([Command.SetReportingMode, ReportFlags.OnChange, ReportMode.Buttons]));
+      device.write(new Buffer([Command.SetLEDState, ledState]));
+
+      wiimote.emit('data', index + 1, { buttons: {} });
+
+      return device;
+    });
+  }
+
+  wiimote.timer = setInterval(checkDevices, 1000);
+  process.nextTick(checkDevices);
 };
+
+module.exports = Wiimote;
