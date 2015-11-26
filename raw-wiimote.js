@@ -18,7 +18,7 @@ var ReportMode = {
 };
 
 function isWiimote(deviceDesc) {
-  return deviceDesc.product.match(/Nintendo/);
+  return deviceDesc.vendorId == 1406;
 }
 
 var packets = pakkit.export({
