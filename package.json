@@ -1,11 +1,11 @@
 {
-  "name": "wiimote4scratch",
-  "version": "0.0.0",
+  "name": "scratch2wiimotes",
+  "version": "0.0.1",
   "scripts": {
     "start": "node server.js"
   },
-  "author": "",
-  "license": "ISC",
+  "author": "Jonathan Perret <jonathan@ut7.fr>",
+  "license": "MIT",
   "engines" : { "node" : "^0.12" },
   "dependencies": {
     "express": "^4.9.7",
